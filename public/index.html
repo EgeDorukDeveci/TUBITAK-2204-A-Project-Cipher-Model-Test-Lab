@@ -125,6 +125,18 @@
                 <select id="modelSelect"></select>
               </label>
               <p class="availability-note" data-i18n="modelAvailabilityNote">The Vercel tab labels which models currently work with free credits. OpenRouter models are separate free variants.</p>
+              <form id="modelFinderForm" class="model-finder">
+                <div>
+                  <span data-i18n="findMoreModels">Find more models</span>
+                  <small id="modelFormatExample">Format: openai/gpt-5.5</small>
+                </div>
+                <label>
+                  <span data-i18n="modelNameInput">Model name</span>
+                  <input id="modelFinderInput" type="text" autocomplete="off" spellcheck="false" placeholder="openai/gpt-5.5">
+                </label>
+                <button class="secondary-action" id="modelFinderButton" type="submit" data-i18n="addModel">Add Model</button>
+                <p id="modelFinderStatus" data-i18n="modelFinderHelp">Using your OpenRouter key, a free model checks the format, then the provider model list confirms the model exists.</p>
+              </form>
               <label>
                 <span data-i18n="cipherMethod">Şifre yöntemi</span>
                 <select id="simMethod"></select>

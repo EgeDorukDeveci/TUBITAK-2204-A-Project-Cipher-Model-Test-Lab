@@ -3,6 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const { generateText } = require("ai");
 const { createGateway } = require("@ai-sdk/gateway");
+const { findModel } = require("./api/_shared");
 
 const projectRoot = __dirname;
 const root = path.join(projectRoot, "public");
@@ -32,6 +33,10 @@ const mimeTypes = {
 const EVALUATION_MODEL = "openai/gpt-5.4-nano";
 const OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1/chat/completions";
 const COMPARISON_EXPLANATION_MODEL = "google/gemma-4-26b-a4b-it:free";
+
+function isModelIdFormat(value) {
+  return /^[a-z0-9][a-z0-9._-]*\/[a-z0-9][a-z0-9._:-]*$/i.test(String(value || "").trim());
+}
 
 function readBody(request) {
   return new Promise((resolve, reject) => {
@@ -79,7 +84,8 @@ function safeModel(model) {
     "xai/grok-4.3",
     "xai/grok-4.20-reasoning",
   ]);
-  return allowed.has(model) ? model : "xai/grok-4.3";
+  if (allowed.has(model) || isModelIdFormat(model)) return model;
+  throw new Error(`Invalid Vercel AI Gateway model id format: ${model}. Use provider/model-name, for example openai/gpt-5.5.`);
 }
 
 function safeOpenRouterModel(model) {
@@ -95,7 +101,8 @@ function safeOpenRouterModel(model) {
     "minimax/minimax-m2.5:free",
     "meta-llama/llama-3.3-70b-instruct:free",
   ]);
-  return allowed.has(model) ? model : "google/gemma-4-26b-a4b-it:free";
+  if (allowed.has(model) || isModelIdFormat(model)) return model;
+  throw new Error(`Invalid OpenRouter model id format: ${model}. Use provider/model-name or provider/model-name:free.`);
 }
 
 function resolveVercelApiKey(payload) {
@@ -344,6 +351,21 @@ async function handleCompareExplanation(request, response) {
   }
 }
 
+async function handleFindModel(request, response) {
+  try {
+    const body = await readBody(request);
+    const payload = JSON.parse(body || "{}");
+    if (!payload.query || !payload.provider) {
+      sendJson(response, 400, { error: "Missing provider or model name." });
+      return;
+    }
+    const result = await findModel(payload);
+    sendJson(response, 200, result);
+  } catch (error) {
+    sendJson(response, 500, { error: error.message });
+  }
+}
+
 function serveStatic(request, response) {
   const url = new URL(request.url, "http://localhost");
   const pathname = url.pathname === "/" || url.pathname === "/website/" ? "/index.html" : url.pathname.replace(/^\/website/, "");
@@ -384,6 +406,10 @@ const server = http.createServer((request, response) => {
   }
   if (request.method === "POST" && request.url === "/api/explain-comparison") {
     handleCompareExplanation(request, response);
+    return;
+  }
+  if (request.method === "POST" && request.url === "/api/find-model") {
+    handleFindModel(request, response);
     return;
   }
   if (request.method === "GET" && request.url === "/api/health") {
