@@ -3,7 +3,13 @@ const { createGateway } = require("@ai-sdk/gateway");
 
 const EVALUATION_MODEL = "openai/gpt-5.4-nano";
 const OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1/chat/completions";
+const OPENROUTER_MODELS_URL = "https://openrouter.ai/api/v1/models";
+const VERCEL_MODELS_URL = "https://ai-gateway.vercel.sh/v1/models";
 const COMPARISON_EXPLANATION_MODEL = "google/gemma-4-26b-a4b-it:free";
+
+function isModelIdFormat(value) {
+  return /^[a-z0-9][a-z0-9._-]*\/[a-z0-9][a-z0-9._:-]*$/i.test(String(value || "").trim());
+}
 
 function sendJson(response, status, payload) {
   response.statusCode = status;
@@ -63,7 +69,8 @@ function safeModel(model) {
     "xai/grok-4.3",
     "xai/grok-4.20-reasoning",
   ]);
-  return allowed.has(model) ? model : "xai/grok-4.3";
+  if (allowed.has(model) || isModelIdFormat(model)) return model;
+  throw new Error(`Invalid Vercel AI Gateway model id format: ${model}. Use provider/model-name, for example openai/gpt-5.5.`);
 }
 
 function safeOpenRouterModel(model) {
@@ -79,7 +86,8 @@ function safeOpenRouterModel(model) {
     "minimax/minimax-m2.5:free",
     "meta-llama/llama-3.3-70b-instruct:free",
   ]);
-  return allowed.has(model) ? model : "google/gemma-4-26b-a4b-it:free";
+  if (allowed.has(model) || isModelIdFormat(model)) return model;
+  throw new Error(`Invalid OpenRouter model id format: ${model}. Use provider/model-name or provider/model-name:free.`);
 }
 
 function resolveVercelApiKey(payload) {
@@ -217,6 +225,122 @@ async function callOpenRouterMessages(payload, model, messages, maxTokens = 450)
   };
 }
 
+async function fetchModelList(provider, payload = {}) {
+  if (provider === "openrouter") {
+    const apiKey = resolveOpenRouterApiKey(payload);
+    const headers = apiKey ? { Authorization: `Bearer ${apiKey}` } : {};
+    const response = await fetch(OPENROUTER_MODELS_URL, { headers });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(data.error?.message || data.message || `OpenRouter model list failed with HTTP ${response.status}.`);
+    }
+    return Array.isArray(data.data) ? data.data : [];
+  }
+
+  const apiKey = resolveVercelApiKey(payload);
+  const headers = apiKey ? { Authorization: `Bearer ${apiKey}` } : {};
+  const response = await fetch(VERCEL_MODELS_URL, { headers });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.error?.message || data.message || `Vercel AI Gateway model list failed with HTTP ${response.status}.`);
+  }
+  return Array.isArray(data.data) ? data.data : [];
+}
+
+function modelPriceIsFree(model) {
+  const pricing = model.pricing || {};
+  const prompt = pricing.prompt ?? pricing.input ?? model.prompt_price;
+  const completion = pricing.completion ?? pricing.output ?? model.completion_price;
+  return String(prompt ?? "") === "0" && String(completion ?? "") === "0";
+}
+
+function modelDisplayName(model) {
+  return model.name || model.id || model.canonical_slug || "Custom model";
+}
+
+async function normalizeModelQuery(payload) {
+  const provider = payload.provider === "openrouter" ? "openrouter" : "vercel";
+  const query = String(payload.query || "").trim();
+  if (!query) throw new Error("Write a model name first.");
+
+  const result = await callOpenRouterMessages(payload, COMPARISON_EXPLANATION_MODEL, [
+    {
+      role: "system",
+      content: "You normalize AI model names into API model ids. Return only compact JSON.",
+    },
+    {
+      role: "user",
+      content: [
+        `Provider list target: ${provider === "openrouter" ? "OpenRouter" : "Vercel AI Gateway"}.`,
+        `User input: ${query}`,
+        "The correct model id format is provider/model-name.",
+        "For OpenRouter free variants, provider/model-name:free is also valid.",
+        "Return JSON only in this shape:",
+        "{\"candidates\":[\"provider/model-name\"],\"format_example\":\"provider/model-name\",\"note\":\"short note\"}",
+        "Include the raw input as the first candidate if it already looks like a model id.",
+        "Do not invent more than 5 candidates.",
+      ].join("\n"),
+    },
+  ], 260);
+
+  const raw = result.output.trim();
+  const match = raw.match(/\{[\s\S]*\}/);
+  const parsed = JSON.parse(match ? match[0] : raw);
+  const candidates = Array.isArray(parsed.candidates) ? parsed.candidates : [];
+  const normalized = [query, ...candidates]
+    .map((item) => String(item || "").trim())
+    .filter(Boolean);
+  return {
+    candidates: [...new Set(normalized)],
+    formatExample: String(parsed.format_example || (provider === "openrouter" ? "google/gemma-4-26b-a4b-it:free" : "openai/gpt-5.5")),
+    note: String(parsed.note || ""),
+    helperModel: result.model,
+  };
+}
+
+function findModelMatch(models, candidates, query) {
+  const lowerCandidates = candidates.map((item) => item.toLowerCase());
+  const byId = models.find((model) => lowerCandidates.includes(String(model.id || "").toLowerCase()));
+  if (byId) return byId;
+
+  const normalizedQuery = query.toLowerCase().replace(/[^a-z0-9]+/g, "");
+  return models.find((model) => {
+    const id = String(model.id || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+    const name = String(model.name || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+    return normalizedQuery && (id.includes(normalizedQuery) || name.includes(normalizedQuery));
+  });
+}
+
+async function findModel(payload) {
+  const provider = payload.provider === "openrouter" ? "openrouter" : "vercel";
+  const query = String(payload.query || "").trim();
+  const normalized = await normalizeModelQuery({ ...payload, provider });
+  const formatCandidates = normalized.candidates.filter(isModelIdFormat);
+  if (!formatCandidates.length) {
+    throw new Error(`No valid model id format found. True format example: ${provider === "openrouter" ? "google/gemma-4-26b-a4b-it:free" : "openai/gpt-5.5"}.`);
+  }
+  const models = await fetchModelList(provider, payload);
+  const match = findModelMatch(models, formatCandidates, query);
+  if (!match) {
+    throw new Error(`No ${provider === "openrouter" ? "OpenRouter" : "Vercel"} model found for "${query}". True format example: ${normalized.formatExample}.`);
+  }
+  const modelId = String(match.id || match.canonical_slug || "").trim();
+  if (!isModelIdFormat(modelId)) {
+    throw new Error(`The matched model does not expose a usable model id. True format example: ${normalized.formatExample}.`);
+  }
+  return {
+    id: modelId,
+    label: modelDisplayName(match),
+    provider,
+    free: provider === "openrouter" ? (modelId.endsWith(":free") || modelPriceIsFree(match)) : false,
+    freeCredit: provider === "vercel" ? modelPriceIsFree(match) : undefined,
+    formatExample: provider === "openrouter" ? "google/gemma-4-26b-a4b-it:free" : "openai/gpt-5.5",
+    checkedAgainst: provider === "openrouter" ? OPENROUTER_MODELS_URL : VERCEL_MODELS_URL,
+    helperModel: normalized.helperModel,
+    note: normalized.note,
+  };
+}
+
 async function evaluateWithGpt54Nano(payload, decryptedText) {
   const client = createGatewayClient(payload);
   const prompt = [
@@ -306,5 +430,6 @@ module.exports = {
   readJson,
   runDecryptAndEvaluate,
   explainComparison,
+  findModel,
   healthPayload,
 };

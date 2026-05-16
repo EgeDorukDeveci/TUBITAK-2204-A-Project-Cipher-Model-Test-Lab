@@ -96,6 +96,10 @@ const languageSelect = document.querySelector("#languageSelect");
 const testModeButtons = document.querySelectorAll(".mode-button");
 const providerSwitch = document.querySelector("#providerSwitch");
 const providerModeButtons = document.querySelectorAll(".provider-button");
+const modelFinderForm = document.querySelector("#modelFinderForm");
+const modelFinderInput = document.querySelector("#modelFinderInput");
+const modelFinderStatus = document.querySelector("#modelFinderStatus");
+const modelFormatExample = document.querySelector("#modelFormatExample");
 const apiKeyForm = document.querySelector("#apiKeyForm");
 const apiKeyInput = document.querySelector("#apiKeyInput");
 const openRouterApiKeyInput = document.querySelector("#openRouterApiKeyInput");
@@ -146,6 +150,15 @@ const translations = {
     providerVercel: "Vercel",
     providerOpenRouter: "OpenRouter Ücretsiz",
     modelAvailabilityNote: "Vercel sekmesinde ücretsiz krediyle çalışan modeller etiketlenmiştir. OpenRouter modelleri ayrı ücretsiz varyantlardır.",
+    findMoreModels: "Daha fazla model bul",
+    modelNameInput: "Model adı",
+    addModel: "Model Ekle",
+    modelFinderHelp: "OpenRouter anahtarıyla ücretsiz bir model formatı kontrol eder, sonra sağlayıcının model listesi modelin varlığını doğrular.",
+    modelFinderChecking: "Model formatı ve sağlayıcı listesi kontrol ediliyor...",
+    modelAdded: "Model eklendi",
+    modelExists: "Bu model zaten listede.",
+    modelFormatLabel: "Gerçek format",
+    modelFinderError: "Model bulunamadı",
     knownResultsNote: "Özgün proje sonuçları: 5 şifre yöntemi, 3 metin uzunluğu, Hill hariç 15 test.",
     rank: "Sıra",
     averageScore: "Ortalama",
@@ -313,6 +326,15 @@ const translations = {
     providerVercel: "Vercel",
     providerOpenRouter: "OpenRouter Free",
     modelAvailabilityNote: "The Vercel tab labels which models currently work with free credits. OpenRouter models are separate free variants.",
+    findMoreModels: "Find more models",
+    modelNameInput: "Model name",
+    addModel: "Add Model",
+    modelFinderHelp: "Using your OpenRouter key, a free model checks the format, then the provider model list confirms the model exists.",
+    modelFinderChecking: "Checking model format and provider list...",
+    modelAdded: "Model added",
+    modelExists: "This model is already in the list.",
+    modelFormatLabel: "True format",
+    modelFinderError: "Model not found",
     knownResultsNote: "Original project results: 5 cipher methods, 3 text lengths, 15 tests excluding Hill.",
     rank: "Rank",
     averageScore: "Average",
@@ -479,6 +501,15 @@ const translations = {
     providerVercel: "Vercel",
     providerOpenRouter: "OpenRouter Kostenlos",
     modelAvailabilityNote: "Der Vercel-Tab markiert, welche Modelle derzeit mit Gratisguthaben funktionieren. OpenRouter-Modelle sind separate kostenlose Varianten.",
+    findMoreModels: "Weitere Modelle finden",
+    modelNameInput: "Modellname",
+    addModel: "Modell hinzufügen",
+    modelFinderHelp: "Mit deinem OpenRouter-Schlüssel prüft ein kostenloses Modell das Format; danach bestätigt die Modellliste des Anbieters, ob das Modell existiert.",
+    modelFinderChecking: "Modellformat und Anbieterliste werden geprüft...",
+    modelAdded: "Modell hinzugefügt",
+    modelExists: "Dieses Modell ist bereits in der Liste.",
+    modelFormatLabel: "Richtiges Format",
+    modelFinderError: "Modell nicht gefunden",
     knownResultsNote: "Originale Projektergebnisse: 5 Chiffrenmethoden, 3 Textlängen, 15 Tests ohne Hill.",
     rank: "Rang",
     averageScore: "Durchschnitt",
@@ -631,6 +662,7 @@ let comparisonExplanationModel = "";
 const API_KEY_STORAGE_KEY = "cipherLabVercelApiKey";
 const OPENROUTER_API_KEY_STORAGE_KEY = "cipherLabOpenRouterApiKey";
 const TEST_RESULTS_STORAGE_KEY = "cipherLabTestedRows";
+const CUSTOM_MODELS_STORAGE_KEY = "cipherLabCustomModels";
 const PURPOSE_ACK_STORAGE_KEY = "cipherLabPurposeAcknowledged";
 let purposeAcknowledged = localStorage.getItem(PURPOSE_ACK_STORAGE_KEY) === "true";
 
@@ -703,6 +735,7 @@ function fillControls() {
   fillSelect(modelSelect, availableModels().map((model) => model.id), (id) => modelLabel(models.find((model) => model.id === id)));
   fillSelect(simMethod, availableTestMethods(), methodLabel);
   fillSelect(simLength, unique("length"), (length) => `${length} ${t("chars")}`);
+  updateModelFinderText();
 }
 
 function applyStaticSelectTranslations() {
@@ -717,6 +750,73 @@ function getStoredApiKey() {
 
 function getStoredOpenRouterApiKey() {
   return localStorage.getItem(OPENROUTER_API_KEY_STORAGE_KEY) || "";
+}
+
+function providerFormatExample() {
+  return currentNewProvider === "openrouter" ? "google/gemma-4-26b-a4b-it:free" : "openai/gpt-5.5";
+}
+
+function updateModelFinderText(message = null) {
+  modelFormatExample.textContent = `${t("modelFormatLabel")}: ${providerFormatExample()}`;
+  modelFinderInput.placeholder = providerFormatExample();
+  if (message) {
+    modelFinderStatus.textContent = message;
+  } else {
+    modelFinderStatus.textContent = t("modelFinderHelp");
+  }
+}
+
+function loadCustomModels() {
+  try {
+    const savedModels = JSON.parse(localStorage.getItem(CUSTOM_MODELS_STORAGE_KEY) || "[]");
+    if (!Array.isArray(savedModels)) return;
+    savedModels.forEach((model) => {
+      if (!model?.id || !model?.provider || models.some((item) => item.id === model.id)) return;
+      models.push({
+        id: model.id,
+        label: model.label || model.id,
+        capability: 0,
+        speed: 0,
+        specialty: ["Custom"],
+        provider: model.provider,
+        free: Boolean(model.free),
+        freeCredit: Boolean(model.freeCredit),
+        custom: true,
+      });
+    });
+  } catch (error) {
+    localStorage.removeItem(CUSTOM_MODELS_STORAGE_KEY);
+  }
+}
+
+function saveCustomModels() {
+  const customModels = models
+    .filter((model) => model.custom)
+    .map(({ id, label, provider, free, freeCredit }) => ({ id, label, provider, free, freeCredit }));
+  localStorage.setItem(CUSTOM_MODELS_STORAGE_KEY, JSON.stringify(customModels));
+}
+
+function addCustomModel(model) {
+  if (models.some((item) => item.id === model.id)) {
+    modelSelect.value = model.id;
+    updateModelFinderText(`${t("modelExists")} ${model.id}`);
+    return;
+  }
+  models.push({
+    id: model.id,
+    label: model.label || model.id,
+    capability: 0,
+    speed: 0,
+    specialty: ["Custom"],
+    provider: model.provider,
+    free: Boolean(model.free),
+    freeCredit: Boolean(model.freeCredit),
+    custom: true,
+  });
+  saveCustomModels();
+  fillControls();
+  modelSelect.value = model.id;
+  updateModelFinderText(`${t("modelAdded")}: ${model.id}`);
 }
 
 function setStoredApiKey(apiKey) {
@@ -1240,6 +1340,44 @@ async function callComparisonExplanation() {
   return data;
 }
 
+async function findProviderModel(query) {
+  const apiUrl = window.location.protocol === "file:" ? "http://127.0.0.1:8080/api/find-model" : `${window.location.origin}/api/find-model`;
+  const response = await fetch(apiUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      provider: currentNewProvider,
+      query,
+      vercelApiKey: getStoredApiKey(),
+      openRouterApiKey: getStoredOpenRouterApiKey(),
+    }),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || t("modelFinderError"));
+  return data;
+}
+
+async function handleModelFinderSubmit(event) {
+  event.preventDefault();
+  if (currentTestMode !== "new") switchTestMode("new");
+  const query = modelFinderInput.value.trim();
+  if (!query) {
+    updateModelFinderText(`${t("modelFinderError")}: ${providerFormatExample()}`);
+    return;
+  }
+  modelFinderStatus.textContent = t("modelFinderChecking");
+  modelFinderForm.querySelector("button").disabled = true;
+  try {
+    const model = await findProviderModel(query);
+    addCustomModel(model);
+    modelFinderInput.value = "";
+  } catch (error) {
+    updateModelFinderText(`${t("modelFinderError")}: ${error.message}`);
+  } finally {
+    modelFinderForm.querySelector("button").disabled = false;
+  }
+}
+
 function rowsForCurrentBatch() {
   return dataset.filter((row) => !(currentTestMode === "known" && row.method === "Hill"));
 }
@@ -1446,6 +1584,7 @@ function switchTestMode(modeName) {
   currentTestMode = modeName;
   testModeButtons.forEach((button) => button.classList.toggle("active", button.dataset.testMode === modeName));
   providerSwitch.classList.toggle("is-hidden", currentTestMode !== "new");
+  modelFinderForm.classList.toggle("is-hidden", currentTestMode !== "new");
   fillControls();
 }
 
@@ -1453,6 +1592,7 @@ function switchProviderMode(providerName) {
   currentNewProvider = providerName;
   providerModeButtons.forEach((button) => button.classList.toggle("active", button.dataset.providerMode === providerName));
   fillControls();
+  updateModelFinderText();
 }
 
 function applyTranslations() {
@@ -1484,6 +1624,7 @@ function applyTranslations() {
   simMethod.value = [...simMethod.options].some((option) => option.value === simMethodValue) ? simMethodValue : simMethod.value;
   languageSelect.value = currentLang;
   updateApiKeyStatus();
+  updateModelFinderText();
   updatePurposeGate();
   renderDataset();
   renderResults();
@@ -1491,6 +1632,7 @@ function applyTranslations() {
   renderCompare();
 }
 
+loadCustomModels();
 fillControls();
 loadTestedRows();
 if (testedRows.length) batchStatus.textContent = t("savedResultsLoaded");
@@ -1505,6 +1647,7 @@ retryFailedTestsButton.addEventListener("click", retryFailedTests);
 exportCsvButton.addEventListener("click", () => exportResults("csv"));
 exportJsonButton.addEventListener("click", () => exportResults("json"));
 clearSavedResultsButton.addEventListener("click", clearSavedTestedRows);
+modelFinderForm.addEventListener("submit", handleModelFinderSubmit);
 methodFilter.addEventListener("change", renderResults);
 methodFilter.addEventListener("change", renderNewResults);
 methodFilter.addEventListener("change", renderCompare);
