@@ -98,6 +98,7 @@ const providerSwitch = document.querySelector("#providerSwitch");
 const providerModeButtons = document.querySelectorAll(".provider-button");
 const modelFinderForm = document.querySelector("#modelFinderForm");
 const modelFinderInput = document.querySelector("#modelFinderInput");
+const modelFinderButton = document.querySelector("#modelFinderButton");
 const modelFinderStatus = document.querySelector("#modelFinderStatus");
 const modelFormatExample = document.querySelector("#modelFormatExample");
 const apiKeyForm = document.querySelector("#apiKeyForm");
@@ -738,6 +739,23 @@ function fillControls() {
   updateModelFinderText();
 }
 
+function requiredElement(element, name) {
+  if (!element) {
+    throw new Error(`Missing required UI element: ${name}`);
+  }
+}
+
+[
+  [methodFilter, "methodFilter"],
+  [lengthFilter, "lengthFilter"],
+  [modelSelect, "modelSelect"],
+  [simForm, "simForm"],
+  [modelFinderForm, "modelFinderForm"],
+  [modelFinderInput, "modelFinderInput"],
+  [modelFinderButton, "modelFinderButton"],
+  [languageSelect, "languageSelect"],
+].forEach(([element, name]) => requiredElement(element, name));
+
 function applyStaticSelectTranslations() {
   document.querySelectorAll("option[data-i18n]").forEach((option) => {
     option.textContent = t(option.dataset.i18n);
@@ -1366,7 +1384,7 @@ async function handleModelFinderSubmit(event) {
     return;
   }
   modelFinderStatus.textContent = t("modelFinderChecking");
-  modelFinderForm.querySelector("button").disabled = true;
+  modelFinderButton.disabled = true;
   try {
     const model = await findProviderModel(query);
     addCustomModel(model);
@@ -1374,7 +1392,7 @@ async function handleModelFinderSubmit(event) {
   } catch (error) {
     updateModelFinderText(`${t("modelFinderError")}: ${error.message}`);
   } finally {
-    modelFinderForm.querySelector("button").disabled = false;
+    modelFinderButton.disabled = false;
   }
 }
 
@@ -1647,7 +1665,10 @@ retryFailedTestsButton.addEventListener("click", retryFailedTests);
 exportCsvButton.addEventListener("click", () => exportResults("csv"));
 exportJsonButton.addEventListener("click", () => exportResults("json"));
 clearSavedResultsButton.addEventListener("click", clearSavedTestedRows);
-modelFinderForm.addEventListener("submit", handleModelFinderSubmit);
+modelFinderButton.addEventListener("click", handleModelFinderSubmit);
+modelFinderInput.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") handleModelFinderSubmit(event);
+});
 methodFilter.addEventListener("change", renderResults);
 methodFilter.addEventListener("change", renderNewResults);
 methodFilter.addEventListener("change", renderCompare);
