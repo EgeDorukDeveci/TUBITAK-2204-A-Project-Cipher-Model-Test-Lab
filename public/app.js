@@ -107,6 +107,7 @@ const clearApiKey = document.querySelector("#clearApiKey");
 const clearOpenRouterApiKey = document.querySelector("#clearOpenRouterApiKey");
 const purposeAcknowledge = document.querySelector("#purposeAcknowledge");
 const purposeContinue = document.querySelector("#purposeContinue");
+const purposeTryGpt55 = document.querySelector("#purposeTryGpt55");
 const purposeStatus = document.querySelector("#purposeStatus");
 
 const translations = {
@@ -262,7 +263,20 @@ const translations = {
     purposeLocked: "Diğer sekmeleri açmak için bu sayfayı bir kez onayla.",
     purposeUnlocked: "Diğer sekmeler açıldı.",
     purposeContinue: "Test Konsoluna Geç",
-    purposeRequired: "Devam etmek için önce proje amacını onayla."
+    purposeRequired: "Devam etmek için önce proje amacını onayla.",
+    purposeFlowLabel: "Web sitesi nasıl çalışır",
+    purposeFlowTitle: "Şifreli metinden ölçüt sonucuna",
+    purposeFlowIntro: "Bir test, veri setinden bir şifreli satır seçer, seçilen API sağlayıcısı üzerinden modeli çağırır, modelden düz metni geri kazanmasını ister ve ardından cevabı değerlendirme için GPT-5.4 Nano'ya gönderir.",
+    purposeStep1Title: "Model seç",
+    purposeStep1Text: "ChatGPT 5.5 gibi bir Vercel veya OpenRouter modeli seçilir.",
+    purposeStep2Title: "Şifre testini seç",
+    purposeStep2Text: "Şifre türü, metin uzunluğu ve modelin anahtarı görüp görmeyeceği belirlenir.",
+    purposeStep3Title: "API çağrısını çalıştır",
+    purposeStep3Text: "Web sitesi promptu modele gönderir ve model çıktısını kaydeder.",
+    purposeStep4Title: "Değerlendir ve karşılaştır",
+    purposeStep4Text: "GPT-5.4 Nano çıktıyı puanlar; sonuç Yeni Testler ve Karşılaştırma sekmelerinde görünür.",
+    purposeTryGpt55: "ChatGPT 5.5 Testi Dene",
+    purposeGpt55Ready: "ChatGPT 5.5 için Atbash 50 testi hazır. Testi Çalıştır düğmesine bas."
   },
   en: {
     pageTitle: "Cipher Model Test Lab",
@@ -415,7 +429,20 @@ const translations = {
     purposeLocked: "Confirm this page once to unlock the other tabs.",
     purposeUnlocked: "Other tabs are unlocked.",
     purposeContinue: "Continue to Test Console",
-    purposeRequired: "Confirm the project purpose before continuing."
+    purposeRequired: "Confirm the project purpose before continuing.",
+    purposeFlowLabel: "How the website works",
+    purposeFlowTitle: "From cipher text to benchmark result",
+    purposeFlowIntro: "A test selects one encrypted dataset row, sends it to the chosen model through the selected API provider, asks the model to recover the plaintext, then sends the answer to GPT-5.4 Nano for evaluation.",
+    purposeStep1Title: "Choose a model",
+    purposeStep1Text: "Pick a Vercel or OpenRouter model, such as ChatGPT 5.5.",
+    purposeStep2Title: "Choose a cipher test",
+    purposeStep2Text: "Select cipher type, text length, and whether the model sees the key.",
+    purposeStep3Title: "Run the API call",
+    purposeStep3Text: "The website sends the prompt to the model and records the model output.",
+    purposeStep4Title: "Evaluate and compare",
+    purposeStep4Text: "GPT-5.4 Nano scores the output, then the result appears in New Tests and Comparison.",
+    purposeTryGpt55: "Try a ChatGPT 5.5 Test",
+    purposeGpt55Ready: "ChatGPT 5.5 is set up with the Atbash 50 test. Press Run Test."
   },
   de: {
     pageTitle: "Chiffrenmodell-Testlabor",
@@ -568,7 +595,20 @@ const translations = {
     purposeLocked: "Bestätige diese Seite einmal, um die anderen Tabs freizuschalten.",
     purposeUnlocked: "Die anderen Tabs sind freigeschaltet.",
     purposeContinue: "Zur Testkonsole",
-    purposeRequired: "Bestätige zuerst den Projektzweck."
+    purposeRequired: "Bestätige zuerst den Projektzweck.",
+    purposeFlowLabel: "So funktioniert die Website",
+    purposeFlowTitle: "Vom Geheimtext zum Benchmark-Ergebnis",
+    purposeFlowIntro: "Ein Test wählt eine verschlüsselte Datensatzzeile, sendet sie über den ausgewählten API-Anbieter an das Modell, fordert den Klartext an und schickt die Antwort danach zur Bewertung an GPT-5.4 Nano.",
+    purposeStep1Title: "Modell wählen",
+    purposeStep1Text: "Wähle ein Vercel- oder OpenRouter-Modell, zum Beispiel ChatGPT 5.5.",
+    purposeStep2Title: "Chiffren-Test wählen",
+    purposeStep2Text: "Wähle Chiffrenart, Textlänge und ob das Modell den Schlüssel sieht.",
+    purposeStep3Title: "API-Aufruf starten",
+    purposeStep3Text: "Die Website sendet den Prompt an das Modell und speichert die Modellausgabe.",
+    purposeStep4Title: "Bewerten und vergleichen",
+    purposeStep4Text: "GPT-5.4 Nano bewertet die Ausgabe; das Ergebnis erscheint unter Neue Tests und Vergleich.",
+    purposeTryGpt55: "ChatGPT-5.5-Test ausprobieren",
+    purposeGpt55Ready: "ChatGPT 5.5 ist mit dem Atbash-50-Test vorbereitet. Drücke Test starten."
   }
 };
 
@@ -733,6 +773,27 @@ function acknowledgePurpose() {
   purposeAcknowledged = true;
   localStorage.setItem(PURPOSE_ACK_STORAGE_KEY, "true");
   updatePurposeGate("purposeUnlocked");
+}
+
+function setupGpt55DemoTest() {
+  acknowledgePurpose();
+  switchTestMode("new");
+  switchProviderMode("vercel");
+  modelSelect.value = "openai/gpt-5.5";
+  simMethod.value = "Atbash";
+  simLength.value = "50";
+  scenarioSelect.value = "guided";
+  batchStatus.textContent = t("purposeGpt55Ready");
+  document.querySelector("#metricModel").textContent = "OpenAI GPT-5.5";
+  document.querySelector("#metricCipher").textContent = "Atbash, 50";
+  const row = dataset.find((item) => item.method === "Atbash" && item.length === "50");
+  if (row) {
+    document.querySelector("#cipherText").textContent = row.cipherText;
+    document.querySelector("#expectedText").textContent = row.expected;
+  }
+  document.querySelector("#decryptedText").textContent = t("modelOutputEmpty");
+  document.querySelector("#evaluationText").textContent = t("evaluationEmpty");
+  switchView("simulate");
 }
 
 function saveTestedRows() {
@@ -1498,6 +1559,7 @@ purposeContinue.addEventListener("click", () => {
   }
   switchView("simulate");
 });
+purposeTryGpt55.addEventListener("click", setupGpt55DemoTest);
 compareRows.addEventListener("click", (event) => {
   if (event.target.closest("#generateComparisonExplanation")) {
     generateComparisonExplanation();

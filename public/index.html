@@ -81,6 +81,20 @@
               </article>
             </section>
 
+            <section class="purpose-flow" aria-label="Website workflow">
+              <div>
+                <span data-i18n="purposeFlowLabel">How the website works</span>
+                <h3 data-i18n="purposeFlowTitle">From cipher text to benchmark result</h3>
+                <p data-i18n="purposeFlowIntro">A test selects one encrypted dataset row, sends it to the chosen model through the selected API provider, asks the model to recover the plaintext, then sends the answer to GPT-5.4 Nano for evaluation.</p>
+              </div>
+              <ol>
+                <li><strong data-i18n="purposeStep1Title">Choose a model</strong><span data-i18n="purposeStep1Text">Pick a Vercel or OpenRouter model, such as ChatGPT 5.5.</span></li>
+                <li><strong data-i18n="purposeStep2Title">Choose a cipher test</strong><span data-i18n="purposeStep2Text">Select cipher type, text length, and whether the model sees the key.</span></li>
+                <li><strong data-i18n="purposeStep3Title">Run the API call</strong><span data-i18n="purposeStep3Text">The website sends the prompt to the model and records the model output.</span></li>
+                <li><strong data-i18n="purposeStep4Title">Evaluate and compare</strong><span data-i18n="purposeStep4Text">GPT-5.4 Nano scores the output, then the result appears in New Tests and Comparison.</span></li>
+              </ol>
+            </section>
+
             <section class="purpose-check">
               <label class="check-line purpose-confirm">
                 <input id="purposeAcknowledge" type="checkbox">
@@ -88,6 +102,7 @@
               </label>
               <div>
                 <p id="purposeStatus" data-i18n="purposeLocked">Confirm this page once to unlock the other tabs.</p>
+                <button class="secondary-action" id="purposeTryGpt55" type="button" data-i18n="purposeTryGpt55">Try a ChatGPT 5.5 Test</button>
                 <button class="primary-action" id="purposeContinue" type="button" data-i18n="purposeContinue">Continue to Test Console</button>
               </div>
             </section>
