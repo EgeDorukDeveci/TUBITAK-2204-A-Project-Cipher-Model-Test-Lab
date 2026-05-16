@@ -105,6 +105,9 @@ const toggleApiKey = document.querySelector("#toggleApiKey");
 const toggleOpenRouterApiKey = document.querySelector("#toggleOpenRouterApiKey");
 const clearApiKey = document.querySelector("#clearApiKey");
 const clearOpenRouterApiKey = document.querySelector("#clearOpenRouterApiKey");
+const purposeAcknowledge = document.querySelector("#purposeAcknowledge");
+const purposeContinue = document.querySelector("#purposeContinue");
+const purposeStatus = document.querySelector("#purposeStatus");
 
 const translations = {
   tr: {
@@ -118,6 +121,7 @@ const translations = {
     newCipherMarker: "yeni, özgün projede sonuç yok",
     ready: "Hazır",
     dashboardViews: "Panel görünümleri",
+    tabPurpose: "Proje Amacı",
     tabSimulate: "Test Et",
     tabResults: "Bilinen Sonuçlar",
     tabNewResults: "Yeni Testler",
@@ -200,6 +204,7 @@ const translations = {
     codeMetrics: "Metrikler",
     codeRunner: "Çalıştırıcı",
     titleSimulate: "Test Konsolu",
+    titlePurpose: "Proje Amacı",
     titleResults: "Bilinen Sonuçlar",
     titleNewResults: "Yeni Testler",
     titleCompare: "Karşılaştırma",
@@ -241,7 +246,23 @@ const translations = {
     generateAiComparison: "AI Yorumu Üret",
     generatingAiComparison: "AI yorumu üretiliyor...",
     aiComparisonModel: "Yorum modeli",
-    aiComparisonFailed: "AI yorumu oluşturulamadı."
+    aiComparisonFailed: "AI yorumu oluşturulamadı.",
+    purposeEyebrow: "Ana çalışma",
+    purposeTitle: "Yapay zeka modellerinin klasik şifreleri çözme başarısını ölçmek",
+    purposeIntro: "Bu proje, güncel büyük dil modellerinin klasik şifreleme sistemlerinden Türkçe düz metni ne kadar doğru geri kazanabildiğini inceler. Çalışma; şifre türü, metin uzunluğu, anahtar görünürlüğü ve model ailesi değiştikçe doğruluğu karşılaştırır.",
+    purposeQuestionLabel: "Araştırma sorusu",
+    purposeQuestion: "Modern yapay zeka modelleri klasik şifreleri güvenilir biçimde çözebilir mi; şifre yöntemi, anahtar veya metin uzunluğu değiştiğinde nerede hata yaparlar?",
+    purposeStudyLabel: "Özgün çalışma",
+    purposeStudy: "Özgün çalışma, Caesar, Atbash, Vigenere, Playfair ve Autokey sonuçlarını karşılaştırmak için sabit şifre veri setleri ve bilinen model çıktıları kullanır. Hill şifresi bu web sitesinde yeni bir genişletme olarak eklenmiştir.",
+    purposeWebsiteLabel: "Web sitesinin rolü",
+    purposeWebsite: "Bu web sitesi çalışmayı canlı bir laboratuvara dönüştürür. Yeni modelleri API çağrılarıyla çalıştırabilir, taze sonuçları saklayabilir, özgün temel sonuçlarla karşılaştırabilir ve şifre türü ile anahtarın gizlendiği daha zor senaryoları test edebilir.",
+    purposeDevelopmentLabel: "Projeyi nasıl geliştirir",
+    purposeDevelopment: "Tekrarlanabilir testler, model ailesi karşılaştırmaları, dışa aktarılabilir sonuçlar ve çok dilli açıklamalar sayesinde web sitesi projeyi statik bir rapordan sürekli güncellenebilen bir ölçüte taşır.",
+    purposeCheckLabel: "Proje amacını okudum ve web sitesinin neyi test ettiğini anladım.",
+    purposeLocked: "Diğer sekmeleri açmak için bu sayfayı bir kez onayla.",
+    purposeUnlocked: "Diğer sekmeler açıldı.",
+    purposeContinue: "Test Konsoluna Geç",
+    purposeRequired: "Devam etmek için önce proje amacını onayla."
   },
   en: {
     pageTitle: "Cipher Model Test Lab",
@@ -254,6 +275,7 @@ const translations = {
     newCipherMarker: "new, no original project result",
     ready: "Ready",
     dashboardViews: "Dashboard views",
+    tabPurpose: "Project Purpose",
     tabSimulate: "Run Test",
     tabResults: "Known Results",
     tabNewResults: "New Tests",
@@ -336,6 +358,7 @@ const translations = {
     codeMetrics: "Metrics",
     codeRunner: "Runner",
     titleSimulate: "Test Console",
+    titlePurpose: "Project Purpose",
     titleResults: "Known Results",
     titleNewResults: "New Tests",
     titleCompare: "Comparison",
@@ -376,7 +399,23 @@ const translations = {
     generateAiComparison: "Generate AI Explanation",
     generatingAiComparison: "Generating AI explanation...",
     aiComparisonModel: "Explanation model",
-    aiComparisonFailed: "Could not generate AI explanation."
+    aiComparisonFailed: "Could not generate AI explanation.",
+    purposeEyebrow: "Main study",
+    purposeTitle: "Measuring how AI models solve classical ciphers",
+    purposeIntro: "This project investigates how well current large language models can recover Turkish plaintext from classical cipher systems. The study compares model accuracy across cipher type, text length, key visibility, and model family.",
+    purposeQuestionLabel: "Research question",
+    purposeQuestion: "Can modern AI models solve classical ciphers reliably, and where do they fail when the cipher method, key, or text length changes?",
+    purposeStudyLabel: "Original study",
+    purposeStudy: "The original work uses fixed cipher datasets and known model outputs to compare Caesar, Atbash, Vigenere, Playfair, and Autokey results. Hill cipher tests are added as a new extension in this website.",
+    purposeWebsiteLabel: "Website role",
+    purposeWebsite: "This website turns the study into a live laboratory. It can run newer models through API calls, save fresh results, compare them with the original baseline, and test harder scenarios where the cipher type and key are hidden.",
+    purposeDevelopmentLabel: "How it develops the project",
+    purposeDevelopment: "By adding repeatable tests, model-family comparisons, exportable results, and multilingual explanations, the website helps the project move from a static report toward a continuously updatable benchmark.",
+    purposeCheckLabel: "I read the project purpose and understand what the website is testing.",
+    purposeLocked: "Confirm this page once to unlock the other tabs.",
+    purposeUnlocked: "Other tabs are unlocked.",
+    purposeContinue: "Continue to Test Console",
+    purposeRequired: "Confirm the project purpose before continuing."
   },
   de: {
     pageTitle: "Chiffrenmodell-Testlabor",
@@ -389,6 +428,7 @@ const translations = {
     newCipherMarker: "neu, kein Original-Projektergebnis",
     ready: "Bereit",
     dashboardViews: "Dashboard-Ansichten",
+    tabPurpose: "Projektzweck",
     tabSimulate: "Testen",
     tabResults: "Bekannte Ergebnisse",
     tabNewResults: "Neue Tests",
@@ -471,6 +511,7 @@ const translations = {
     codeMetrics: "Metriken",
     codeRunner: "Runner",
     titleSimulate: "Testkonsole",
+    titlePurpose: "Projektzweck",
     titleResults: "Bekannte Ergebnisse",
     titleNewResults: "Neue Tests",
     titleCompare: "Vergleich",
@@ -511,11 +552,28 @@ const translations = {
     generateAiComparison: "AI-Erklärung erstellen",
     generatingAiComparison: "AI-Erklärung wird erstellt...",
     aiComparisonModel: "Erklärungsmodell",
-    aiComparisonFailed: "AI-Erklärung konnte nicht erstellt werden."
+    aiComparisonFailed: "AI-Erklärung konnte nicht erstellt werden.",
+    purposeEyebrow: "Hauptstudie",
+    purposeTitle: "Messen, wie KI-Modelle klassische Chiffren lösen",
+    purposeIntro: "Dieses Projekt untersucht, wie gut aktuelle große Sprachmodelle türkischen Klartext aus klassischen Chiffriersystemen wiederherstellen können. Die Studie vergleicht die Modellgenauigkeit nach Chiffrenart, Textlänge, Schlüssel-Sichtbarkeit und Modellfamilie.",
+    purposeQuestionLabel: "Forschungsfrage",
+    purposeQuestion: "Können moderne KI-Modelle klassische Chiffren zuverlässig lösen, und wo scheitern sie, wenn sich Chiffrenmethode, Schlüssel oder Textlänge ändern?",
+    purposeStudyLabel: "Originalstudie",
+    purposeStudy: "Die ursprüngliche Arbeit nutzt feste Chiffren-Datensätze und bekannte Modellausgaben, um Caesar, Atbash, Vigenere, Playfair und Autokey zu vergleichen. Hill-Chiffren werden auf dieser Website als neue Erweiterung ergänzt.",
+    purposeWebsiteLabel: "Rolle der Website",
+    purposeWebsite: "Diese Website macht aus der Studie ein Live-Labor. Sie kann neuere Modelle per API testen, neue Ergebnisse speichern, sie mit der ursprünglichen Basislinie vergleichen und schwierigere Szenarien prüfen, in denen Chiffrenart und Schlüssel verborgen sind.",
+    purposeDevelopmentLabel: "Wie sie das Projekt entwickelt",
+    purposeDevelopment: "Durch wiederholbare Tests, Modellfamilien-Vergleiche, exportierbare Ergebnisse und mehrsprachige Erklärungen entwickelt die Website das Projekt von einem statischen Bericht zu einem laufend aktualisierbaren Benchmark weiter.",
+    purposeCheckLabel: "Ich habe den Projektzweck gelesen und verstehe, was die Website testet.",
+    purposeLocked: "Bestätige diese Seite einmal, um die anderen Tabs freizuschalten.",
+    purposeUnlocked: "Die anderen Tabs sind freigeschaltet.",
+    purposeContinue: "Zur Testkonsole",
+    purposeRequired: "Bestätige zuerst den Projektzweck."
   }
 };
 
 const viewTitleKeys = {
+  purpose: "titlePurpose",
   simulate: "titleSimulate",
   results: "titleResults",
   newResults: "titleNewResults",
@@ -533,6 +591,8 @@ let comparisonExplanationModel = "";
 const API_KEY_STORAGE_KEY = "cipherLabVercelApiKey";
 const OPENROUTER_API_KEY_STORAGE_KEY = "cipherLabOpenRouterApiKey";
 const TEST_RESULTS_STORAGE_KEY = "cipherLabTestedRows";
+const PURPOSE_ACK_STORAGE_KEY = "cipherLabPurposeAcknowledged";
+let purposeAcknowledged = localStorage.getItem(PURPOSE_ACK_STORAGE_KEY) === "true";
 
 function t(key) {
   return translations[currentLang][key] || translations.tr[key] || key;
@@ -655,6 +715,24 @@ function updateApiKeyStatus() {
   openRouterApiKeyInput.placeholder = "sk-or-v1-...";
   toggleApiKey.textContent = apiKeyInput.type === "password" ? t("showVercelApiKey") : t("hideVercelApiKey");
   toggleOpenRouterApiKey.textContent = openRouterApiKeyInput.type === "password" ? t("showOpenRouterApiKey") : t("hideOpenRouterApiKey");
+}
+
+function updatePurposeGate(messageKey = null) {
+  purposeAcknowledge.checked = purposeAcknowledged;
+  purposeContinue.disabled = !purposeAcknowledged;
+  purposeStatus.textContent = t(messageKey || (purposeAcknowledged ? "purposeUnlocked" : "purposeLocked"));
+  document.querySelectorAll(".tab-button").forEach((button) => {
+    const locked = !purposeAcknowledged && button.dataset.view !== "purpose";
+    button.classList.toggle("is-locked", locked);
+    button.toggleAttribute("disabled", locked);
+    button.setAttribute("aria-disabled", String(locked));
+  });
+}
+
+function acknowledgePurpose() {
+  purposeAcknowledged = true;
+  localStorage.setItem(PURPOSE_ACK_STORAGE_KEY, "true");
+  updatePurposeGate("purposeUnlocked");
 }
 
 function saveTestedRows() {
@@ -1289,9 +1367,18 @@ async function runTest(event) {
 }
 
 function switchView(viewName) {
+  if (!purposeAcknowledged && viewName !== "purpose") {
+    viewName = "purpose";
+    document.querySelectorAll(".view").forEach((view) => view.classList.toggle("active-view", view.id === viewName));
+    document.querySelectorAll(".tab-button").forEach((button) => button.classList.toggle("active", button.dataset.view === viewName));
+    viewTitle.textContent = t(viewTitleKeys[viewName]);
+    updatePurposeGate("purposeRequired");
+    return;
+  }
   document.querySelectorAll(".view").forEach((view) => view.classList.toggle("active-view", view.id === viewName));
   document.querySelectorAll(".tab-button").forEach((button) => button.classList.toggle("active", button.dataset.view === viewName));
   viewTitle.textContent = t(viewTitleKeys[viewName]);
+  updatePurposeGate();
 }
 
 function switchTestMode(modeName) {
@@ -1336,6 +1423,7 @@ function applyTranslations() {
   simMethod.value = [...simMethod.options].some((option) => option.value === simMethodValue) ? simMethodValue : simMethod.value;
   languageSelect.value = currentLang;
   updateApiKeyStatus();
+  updatePurposeGate();
   renderDataset();
   renderResults();
   renderNewResults();
@@ -1393,6 +1481,22 @@ clearOpenRouterApiKey.addEventListener("click", () => {
   openRouterApiKeyInput.value = "";
   openRouterApiKeyInput.type = "password";
   setStoredOpenRouterApiKey("");
+});
+purposeAcknowledge.addEventListener("change", () => {
+  if (purposeAcknowledge.checked) {
+    acknowledgePurpose();
+  } else if (purposeAcknowledged) {
+    purposeAcknowledge.checked = true;
+  } else {
+    updatePurposeGate();
+  }
+});
+purposeContinue.addEventListener("click", () => {
+  if (!purposeAcknowledged) {
+    updatePurposeGate("purposeRequired");
+    return;
+  }
+  switchView("simulate");
 });
 compareRows.addEventListener("click", (event) => {
   if (event.target.closest("#generateComparisonExplanation")) {

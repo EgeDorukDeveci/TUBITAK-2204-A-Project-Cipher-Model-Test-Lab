@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title data-i18n="pageTitle">Cipher Model Test Lab</title>
-    <link rel="stylesheet" href="styles.css?v=20260516-12">
+    <link rel="stylesheet" href="styles.css?v=20260516-21">
   </head>
   <body>
     <main class="app-shell">
@@ -15,7 +15,8 @@
         </div>
 
         <nav class="nav-tabs" aria-label="Panel görünümleri" data-i18n-attr="aria-label:dashboardViews">
-          <button class="tab-button active" data-view="simulate" data-i18n="tabSimulate">Test Et</button>
+          <button class="tab-button active" data-view="purpose" data-i18n="tabPurpose">Project Purpose</button>
+          <button class="tab-button" data-view="simulate" data-i18n="tabSimulate">Test Et</button>
           <button class="tab-button" data-view="results" data-i18n="tabResults">Bilinen Sonuçlar</button>
           <button class="tab-button" data-view="newResults" data-i18n="tabNewResults">Yeni Testler</button>
           <button class="tab-button" data-view="compare" data-i18n="tabCompare">Comparison</button>
@@ -53,7 +54,47 @@
           </div>
         </header>
 
-        <section id="simulate" class="view active-view">
+        <section id="purpose" class="view active-view">
+          <div class="purpose-layout">
+            <section class="purpose-hero">
+              <span data-i18n="purposeEyebrow">Main study</span>
+              <h3 data-i18n="purposeTitle">Measuring how AI models solve classical ciphers</h3>
+              <p data-i18n="purposeIntro">This project investigates how well current large language models can recover Turkish plaintext from classical cipher systems. The study compares model accuracy across cipher type, text length, key visibility, and model family.</p>
+            </section>
+
+            <section class="purpose-grid">
+              <article>
+                <span data-i18n="purposeQuestionLabel">Research question</span>
+                <p data-i18n="purposeQuestion">Can modern AI models solve classical ciphers reliably, and where do they fail when the cipher method, key, or text length changes?</p>
+              </article>
+              <article>
+                <span data-i18n="purposeStudyLabel">Original study</span>
+                <p data-i18n="purposeStudy">The original work uses fixed cipher datasets and known model outputs to compare Caesar, Atbash, Vigenere, Playfair, and Autokey results. Hill cipher tests are added as a new extension in this website.</p>
+              </article>
+              <article>
+                <span data-i18n="purposeWebsiteLabel">Website role</span>
+                <p data-i18n="purposeWebsite">This website turns the study into a live laboratory. It can run newer models through API calls, save fresh results, compare them with the original baseline, and test harder scenarios where the cipher type and key are hidden.</p>
+              </article>
+              <article>
+                <span data-i18n="purposeDevelopmentLabel">How it develops the project</span>
+                <p data-i18n="purposeDevelopment">By adding repeatable tests, model-family comparisons, exportable results, and multilingual explanations, the website helps the project move from a static report toward a continuously updatable benchmark.</p>
+              </article>
+            </section>
+
+            <section class="purpose-check">
+              <label class="check-line purpose-confirm">
+                <input id="purposeAcknowledge" type="checkbox">
+                <span data-i18n="purposeCheckLabel">I read the project purpose and understand what the website is testing.</span>
+              </label>
+              <div>
+                <p id="purposeStatus" data-i18n="purposeLocked">Confirm this page once to unlock the other tabs.</p>
+                <button class="primary-action" id="purposeContinue" type="button" data-i18n="purposeContinue">Continue to Test Console</button>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section id="simulate" class="view">
           <div class="sim-grid">
             <form id="simForm" class="sim-panel">
               <div class="mode-switch" aria-label="Test model group">
@@ -189,6 +230,6 @@
       </section>
     </main>
 
-    <script src="app.js?v=20260516-20"></script>
+    <script src="app.js?v=20260516-21"></script>
   </body>
 </html>
