@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title data-i18n="pageTitle">Cipher Model Test Lab</title>
+    <link rel="stylesheet" href="styles.css?v=20260516-12">
+  </head>
+  <body>
+    <main class="app-shell">
+      <aside class="rail" aria-label="Proje özeti" data-i18n-attr="aria-label:projectSummary">
+        <div class="brand-block">
+          <span class="project-mark">2204-A</span>
+          <h1 data-i18n="pageTitle">Şifre Modeli Test Laboratuvarı</h1>
+        </div>
+
+        <nav class="nav-tabs" aria-label="Panel görünümleri" data-i18n-attr="aria-label:dashboardViews">
+          <button class="tab-button active" data-view="simulate" data-i18n="tabSimulate">Test Et</button>
+          <button class="tab-button" data-view="results" data-i18n="tabResults">Bilinen Sonuçlar</button>
+          <button class="tab-button" data-view="newResults" data-i18n="tabNewResults">Yeni Testler</button>
+          <button class="tab-button" data-view="compare" data-i18n="tabCompare">Comparison</button>
+          <button class="tab-button" data-view="dataset" data-i18n="tabDataset">Veri Seti</button>
+          <button class="tab-button" data-view="apiKey" data-i18n="tabApiKey">API Key</button>
+        </nav>
+      </aside>
+
+      <section class="workspace">
+        <header class="topbar">
+          <div>
+            <h2 id="viewTitle">Test Konsolu</h2>
+          </div>
+          <div class="controls" aria-label="Filtreler" data-i18n-attr="aria-label:filters">
+            <label>
+              <span data-i18n="language">Dil</span>
+              <select id="languageSelect">
+                <option value="tr">Türkçe</option>
+                <option value="en" selected>English</option>
+                <option value="de">Deutsch</option>
+              </select>
+            </label>
+            <label>
+              <span data-i18n="method">Yöntem</span>
+              <select id="methodFilter">
+                <option value="all" data-i18n="allMethods">Tüm yöntemler</option>
+              </select>
+            </label>
+            <label>
+              <span data-i18n="length">Uzunluk</span>
+              <select id="lengthFilter">
+                <option value="all" data-i18n="allLengths">Tüm uzunluklar</option>
+              </select>
+            </label>
+          </div>
+        </header>
+
+        <section id="simulate" class="view active-view">
+          <div class="sim-grid">
+            <form id="simForm" class="sim-panel">
+              <div class="mode-switch" aria-label="Test model group">
+                <button class="mode-button" type="button" data-test-mode="known" data-i18n="knownModels">Known Models</button>
+                <button class="mode-button active" type="button" data-test-mode="new" data-i18n="newModels">New Models</button>
+              </div>
+              <div class="provider-switch" id="providerSwitch" aria-label="New model provider">
+                <button class="provider-button active" type="button" data-provider-mode="vercel" data-i18n="providerVercel">Vercel</button>
+                <button class="provider-button" type="button" data-provider-mode="openrouter" data-i18n="providerOpenRouter">OpenRouter Free</button>
+              </div>
+              <label>
+                <span data-i18n="testModel">Test modeli</span>
+                <select id="modelSelect"></select>
+              </label>
+              <p class="availability-note" data-i18n="modelAvailabilityNote">The Vercel tab labels which models currently work with free credits. OpenRouter models are separate free variants.</p>
+              <label>
+                <span data-i18n="cipherMethod">Şifre yöntemi</span>
+                <select id="simMethod"></select>
+              </label>
+              <label>
+                <span data-i18n="textLength">Metin uzunluğu</span>
+                <select id="simLength"></select>
+              </label>
+              <label>
+                <span data-i18n="testScenario">Scenario</span>
+                <select id="scenarioSelect">
+                  <option value="guided" data-i18n="scenarioGuided">Known cipher + key</option>
+                  <option value="blind" data-i18n="scenarioBlind">Unknown cipher + key</option>
+                </select>
+              </label>
+              <div class="test-actions">
+                <button class="primary-action" type="submit" data-i18n="runTest">Testi Çalıştır</button>
+                <button class="secondary-action" id="runAllTests" type="button" data-i18n="runAllTests">Run All For Model</button>
+                <button class="secondary-action" id="retryFailedTests" type="button" data-i18n="retryFailedTests">Retry Failed Only</button>
+              </div>
+              <p id="batchStatus" class="batch-status" data-i18n="batchIdle">Runs every available cipher test for the selected model.</p>
+            </form>
+            <section class="sim-output" aria-live="polite">
+              <div class="output-head">
+                <span id="runLabel" data-i18n="noRun">Henüz test çalışmadı</span>
+                <strong id="runScore">--</strong>
+              </div>
+              <dl class="run-metrics">
+                <div><dt data-i18n="model">Model</dt><dd id="metricModel">--</dd></div>
+                <div><dt data-i18n="cipher">Şifre</dt><dd id="metricCipher">--</dd></div>
+                <div><dt data-i18n="latency">Süre</dt><dd id="metricLatency">--</dd></div>
+                <div><dt data-i18n="status">Durum</dt><dd id="metricStatus">--</dd></div>
+                <div><dt data-i18n="evaluator">Hakem</dt><dd id="metricEvaluator">--</dd></div>
+              </dl>
+              <div class="text-compare">
+                <article>
+                  <h3 data-i18n="ciphertext">Şifreli Metin</h3>
+                  <p id="cipherText" data-i18n="chooseSettings">Ayarları seçip testi çalıştır.</p>
+                </article>
+                <article>
+                  <h3 data-i18n="modelOutput">Model Çıktısı</h3>
+                  <p id="decryptedText" data-i18n="modelOutputEmpty">Seçilen modelin çıktısı burada görünecek.</p>
+                </article>
+                <article>
+                  <h3 data-i18n="expectedPlaintext">Beklenen Düz Metin</h3>
+                  <p id="expectedText" data-i18n="expectedEmpty">Her çalışmadan sonra doğru cevap burada gösterilir.</p>
+                </article>
+                <article>
+                  <h3 data-i18n="evaluationReasoning">GPT-5.4 Nano Evaluation</h3>
+                  <p id="evaluationText" data-i18n="evaluationEmpty">Değerlendirme sonucu burada görünecek.</p>
+                </article>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section id="results" class="view">
+          <div id="resultRows" class="rows" aria-live="polite"></div>
+        </section>
+
+        <section id="newResults" class="view">
+          <div class="results-toolbar">
+            <button class="secondary-action" id="exportCsv" type="button" data-i18n="exportCsv">Export CSV</button>
+            <button class="secondary-action" id="exportJson" type="button" data-i18n="exportJson">Export JSON</button>
+            <button class="secondary-action" id="clearSavedResults" type="button" data-i18n="clearSavedResults">Clear Saved Results</button>
+          </div>
+          <div id="newResultRows" class="rows" aria-live="polite"></div>
+        </section>
+
+        <section id="compare" class="view">
+          <div id="compareRows" class="compare-layout" aria-live="polite"></div>
+        </section>
+
+        <section id="dataset" class="view">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th data-i18n="cipher">Şifre</th>
+                  <th data-i18n="method">Yöntem</th>
+                  <th data-i18n="length">Uzunluk</th>
+                  <th data-i18n="key">Anahtar</th>
+                  <th data-i18n="expectedPlaintext">Beklenen Düz Metin</th>
+                </tr>
+              </thead>
+              <tbody id="datasetRows"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="apiKey" class="view">
+          <form id="apiKeyForm" class="api-key-panel">
+            <div>
+              <p class="eyebrow" data-i18n="apiKeyEyebrow">API providers</p>
+              <h3 data-i18n="apiKeyTitle">API key</h3>
+              <p data-i18n="apiKeyHelp">Paste your Vercel and OpenRouter keys here. They are saved in this browser only and sent to the local test server when you run actual API tests.</p>
+            </div>
+            <label>
+              <span data-i18n="apiKeyLabel">Vercel API key</span>
+              <input id="apiKeyInput" type="password" autocomplete="off" spellcheck="false" placeholder="vck_...">
+            </label>
+            <label>
+              <span data-i18n="openRouterApiKeyLabel">OpenRouter API key</span>
+              <input id="openRouterApiKeyInput" type="password" autocomplete="off" spellcheck="false" placeholder="sk-or-v1-...">
+            </label>
+            <div class="key-actions">
+              <button class="primary-action" type="submit" data-i18n="saveApiKey">Save Key</button>
+              <button class="secondary-action" id="toggleApiKey" type="button">Show Vercel</button>
+              <button class="secondary-action" id="toggleOpenRouterApiKey" type="button">Show OpenRouter</button>
+              <button class="secondary-action" id="clearApiKey" type="button" data-i18n="clearApiKey">Clear</button>
+              <button class="secondary-action" id="clearOpenRouterApiKey" type="button" data-i18n="clearApiKey">Clear</button>
+            </div>
+            <p id="apiKeyStatus" class="key-status" data-i18n="apiKeyNotSaved">No key saved.</p>
+            <p id="openRouterApiKeyStatus" class="key-status" data-i18n="openRouterApiKeyNotSaved">No OpenRouter key saved.</p>
+          </form>
+        </section>
+
+      </section>
+    </main>
+
+    <script src="app.js?v=20260516-20"></script>
+  </body>
+</html>
