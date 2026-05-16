@@ -622,7 +622,7 @@ const viewTitleKeys = {
   apiKey: "titleApiKey",
 };
 
-let currentLang = "en";
+let currentLang = "tr";
 let currentTestMode = "new";
 let currentNewProvider = "vercel";
 let comparisonExplanation = "";
