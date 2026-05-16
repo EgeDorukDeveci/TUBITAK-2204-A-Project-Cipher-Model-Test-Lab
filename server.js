@@ -4,11 +4,12 @@ const path = require("path");
 const { generateText } = require("ai");
 const { createGateway } = require("@ai-sdk/gateway");
 
-const root = __dirname;
+const projectRoot = __dirname;
+const root = path.join(projectRoot, "public");
 const port = Number(process.env.PORT || 8080);
 
 function loadLocalEnv() {
-  const envPath = path.join(root, ".env.local");
+  const envPath = path.join(projectRoot, ".env.local");
   if (!fs.existsSync(envPath)) return;
   const lines = fs.readFileSync(envPath, "utf8").split(/\r?\n/);
   for (const line of lines) {
