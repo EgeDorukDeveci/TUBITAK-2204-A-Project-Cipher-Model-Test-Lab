@@ -1,17 +1,14 @@
 {
-  "name": "website",
+  "name": "2204a-cipher-model-lab",
   "version": "1.0.0",
-  "description": "Classical cipher model benchmark website with Vercel API routes.",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "private": true,
   "type": "commonjs",
   "engines": {
     "node": "22.x"
+  },
+  "scripts": {
+    "build": "echo Static site ready",
+    "start": "node server.js"
   },
   "dependencies": {
     "@ai-sdk/gateway": "^3.0.114",

@@ -1,3 +1,8 @@
 .env.local
 node_modules/
 .vercel/
+.codex-tools/
+.codex/
+basvuru-dosyasi-2204a/
+.DS_Store
+Thumbs.db

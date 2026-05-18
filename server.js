@@ -6,7 +6,7 @@ const { createGateway } = require("@ai-sdk/gateway");
 const { findModel } = require("./api/_shared");
 
 const projectRoot = __dirname;
-const root = path.join(projectRoot, "public");
+const root = fs.existsSync(path.join(projectRoot, "public", "index.html")) ? path.join(projectRoot, "public") : projectRoot;
 const port = Number(process.env.PORT || 8080);
 
 function loadLocalEnv() {
