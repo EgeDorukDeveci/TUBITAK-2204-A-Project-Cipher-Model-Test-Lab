@@ -7,14 +7,21 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Recursive:CASL,MONO,wght@0.3,1,450;0.8,1,600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=20260527-02">
+    <link rel="stylesheet" href="styles.css?v=20260527-03">
   </head>
   <body>
     <main class="app-shell">
       <aside class="rail" aria-label="Proje özeti" data-i18n-attr="aria-label:projectSummary">
         <div class="brand-block">
-          <span class="project-mark">2204-A</span>
-          <h1 data-i18n="pageTitle">Şifre Modeli Test Laboratuvarı</h1>
+          <div>
+            <span class="project-mark">2204-A</span>
+            <h1 data-i18n="pageTitle">Şifre Modeli Test Laboratuvarı</h1>
+          </div>
+          <div class="cipher-scope" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
         </div>
 
         <nav class="nav-tabs" aria-label="Panel görünümleri" data-i18n-attr="aria-label:dashboardViews">
@@ -26,11 +33,17 @@
           <button class="tab-button" data-view="dataset" data-i18n="tabDataset">Veri Seti</button>
           <button class="tab-button" data-view="apiKey" data-i18n="tabApiKey">API Key</button>
         </nav>
+
+        <div class="deck-readout" aria-hidden="true">
+          <span>MODEL BENCH</span>
+          <strong>CLASSICAL CIPHER ARRAY</strong>
+        </div>
       </aside>
 
       <section class="workspace">
         <header class="topbar">
           <div>
+            <p class="surface-kicker">LIVE CIPHER BENCHMARK</p>
             <h2 id="viewTitle">Test Konsolu</h2>
           </div>
           <div class="controls" aria-label="Filtreler" data-i18n-attr="aria-label:filters">
@@ -59,10 +72,26 @@
 
         <section id="purpose" class="view active-view">
           <div class="purpose-layout">
-            <section class="purpose-hero">
-              <span data-i18n="purposeEyebrow">Main study</span>
-              <h3 data-i18n="purposeTitle">Measuring how AI models solve classical ciphers</h3>
-              <p data-i18n="purposeIntro">This project investigates how well current large language models can recover Turkish plaintext from classical cipher systems. The study compares model accuracy across cipher type, text length, key visibility, and model family.</p>
+            <section class="purpose-stage">
+              <div class="purpose-hero">
+                <span data-i18n="purposeEyebrow">Main study</span>
+                <h3 data-i18n="purposeTitle">Measuring how AI models solve classical ciphers</h3>
+                <p data-i18n="purposeIntro">This project investigates how well current large language models can recover Turkish plaintext from classical cipher systems. The study compares model accuracy across cipher type, text length, key visibility, and model family.</p>
+              </div>
+              <aside class="mission-plate" aria-label="Cipher array">
+                <div>
+                  <span>methods</span>
+                  <strong>6</strong>
+                </div>
+                <div>
+                  <span>scenarios</span>
+                  <strong>2</strong>
+                </div>
+                <div>
+                  <span>evaluator</span>
+                  <strong>5.4n</strong>
+                </div>
+              </aside>
             </section>
 
             <section class="purpose-grid">
@@ -115,52 +144,64 @@
         <section id="simulate" class="view">
           <div class="sim-grid">
             <form id="simForm" class="sim-panel">
-              <div class="mode-switch" aria-label="Test model group">
-                <button class="mode-button" type="button" data-test-mode="known" data-i18n="knownModels">Known Models</button>
-                <button class="mode-button active" type="button" data-test-mode="new" data-i18n="newModels">New Models</button>
+              <div class="panel-title">
+                <span>TEST ROUTER</span>
+                <strong>configure run</strong>
               </div>
-              <div class="provider-switch" id="providerSwitch" aria-label="New model provider">
-                <button class="provider-button active" type="button" data-provider-mode="vercel" data-i18n="providerVercel">Vercel</button>
-                <button class="provider-button" type="button" data-provider-mode="openrouter" data-i18n="providerOpenRouter">OpenRouter Free</button>
-              </div>
-              <label>
-                <span data-i18n="testModel">Test modeli</span>
-                <select id="modelSelect"></select>
-              </label>
-              <p class="availability-note" data-i18n="modelAvailabilityNote">The Vercel tab labels which models currently work with free credits. OpenRouter models are separate free variants.</p>
-              <div id="modelFinderForm" class="model-finder">
-                <div>
-                  <span data-i18n="findMoreModels">Find more models</span>
-                  <small id="modelFormatExample">Format: openai/gpt-5.5</small>
+              <div class="control-section switchboard">
+                <div class="mode-switch" aria-label="Test model group">
+                  <button class="mode-button" type="button" data-test-mode="known" data-i18n="knownModels">Known Models</button>
+                  <button class="mode-button active" type="button" data-test-mode="new" data-i18n="newModels">New Models</button>
                 </div>
+                <div class="provider-switch" id="providerSwitch" aria-label="New model provider">
+                  <button class="provider-button active" type="button" data-provider-mode="vercel" data-i18n="providerVercel">Vercel</button>
+                  <button class="provider-button" type="button" data-provider-mode="openrouter" data-i18n="providerOpenRouter">OpenRouter Free</button>
+                </div>
+              </div>
+              <div class="control-section target-bay">
                 <label>
-                  <span data-i18n="modelNameInput">Model name</span>
-                  <input id="modelFinderInput" type="text" autocomplete="off" spellcheck="false" placeholder="openai/gpt-5.5">
+                  <span data-i18n="testModel">Test modeli</span>
+                  <select id="modelSelect"></select>
                 </label>
-                <button class="secondary-action" id="modelFinderButton" type="button" data-i18n="addModel">Add Model</button>
-                <p id="modelFinderStatus" data-i18n="modelFinderHelp">Using your OpenRouter key, a free model checks the format, then the provider model list confirms the model exists.</p>
+                <p class="availability-note" data-i18n="modelAvailabilityNote">The Vercel tab labels which models currently work with free credits. OpenRouter models are separate free variants.</p>
+                <div id="modelFinderForm" class="model-finder">
+                  <div>
+                    <span data-i18n="findMoreModels">Find more models</span>
+                    <small id="modelFormatExample">Format: openai/gpt-5.5</small>
+                  </div>
+                  <label>
+                    <span data-i18n="modelNameInput">Model name</span>
+                    <input id="modelFinderInput" type="text" autocomplete="off" spellcheck="false" placeholder="openai/gpt-5.5">
+                  </label>
+                  <button class="secondary-action" id="modelFinderButton" type="button" data-i18n="addModel">Add Model</button>
+                  <p id="modelFinderStatus" data-i18n="modelFinderHelp">Using your OpenRouter key, a free model checks the format, then the provider model list confirms the model exists.</p>
+                </div>
               </div>
-              <label>
-                <span data-i18n="cipherMethod">Şifre yöntemi</span>
-                <select id="simMethod"></select>
-              </label>
-              <label>
-                <span data-i18n="textLength">Metin uzunluğu</span>
-                <select id="simLength"></select>
-              </label>
-              <label>
-                <span data-i18n="testScenario">Scenario</span>
-                <select id="scenarioSelect">
-                  <option value="guided" data-i18n="scenarioGuided">Known cipher + key</option>
-                  <option value="blind" data-i18n="scenarioBlind">Unknown cipher + key</option>
-                </select>
-              </label>
-              <div class="test-actions">
-                <button class="primary-action" type="submit" data-i18n="runTest">Testi Çalıştır</button>
-                <button class="secondary-action" id="runAllTests" type="button" data-i18n="runAllTests">Run All For Model</button>
-                <button class="secondary-action" id="retryFailedTests" type="button" data-i18n="retryFailedTests">Retry Failed Only</button>
+              <div class="control-section cipher-bay">
+                <label>
+                  <span data-i18n="cipherMethod">Şifre yöntemi</span>
+                  <select id="simMethod"></select>
+                </label>
+                <label>
+                  <span data-i18n="textLength">Metin uzunluğu</span>
+                  <select id="simLength"></select>
+                </label>
+                <label>
+                  <span data-i18n="testScenario">Scenario</span>
+                  <select id="scenarioSelect">
+                    <option value="guided" data-i18n="scenarioGuided">Known cipher + key</option>
+                    <option value="blind" data-i18n="scenarioBlind">Unknown cipher + key</option>
+                  </select>
+                </label>
               </div>
-              <p id="batchStatus" class="batch-status" data-i18n="batchIdle">Runs every available cipher test for the selected model.</p>
+              <div class="control-section launch-bay">
+                <div class="test-actions">
+                  <button class="primary-action" type="submit" data-i18n="runTest">Testi Çalıştır</button>
+                  <button class="secondary-action" id="runAllTests" type="button" data-i18n="runAllTests">Run All For Model</button>
+                  <button class="secondary-action" id="retryFailedTests" type="button" data-i18n="retryFailedTests">Retry Failed Only</button>
+                </div>
+                <p id="batchStatus" class="batch-status" data-i18n="batchIdle">Runs every available cipher test for the selected model.</p>
+              </div>
             </form>
             <section class="sim-output" aria-live="polite">
               <div class="output-head">
